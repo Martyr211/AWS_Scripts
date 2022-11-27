@@ -1,4 +1,3 @@
-# Source: https://stackoverflow.com/a/43317244
 $path = ".\aws-ec2-key.pem"
 # Reset to remove explict permissions
 icacls.exe $path /reset
