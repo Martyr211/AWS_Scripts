@@ -1,7 +1,4 @@
-$path = ".\aws-ec2-key.pem"
-# Reset to remove explict permissions
+$path = "../AWS Keypair/DevOps.pem"
 icacls.exe $path /reset
-# Give current user explicit read-permission
-icacls.exe $path /GRANT:R "$($env:USERNAME):(R)"
-# Disable inheritance and remove inherited permissions
+icacls.exe $path /GRANT:R 
 icacls.exe $path /inheritance:r
