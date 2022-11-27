@@ -80,12 +80,53 @@ def stop_instances(client, inst_id):
         os.system("tput setaf 1")
         print("\n!! Error in stopping instance !! \n")
         os.system("tput setaf 7")
-     
+    
+    
+ 
 if __name__ == "__main__":   
+    return_code = sp.getstatusoutput('aws --version')[0]
+    if return_code != 0:
+        os.system("tput setaf 1")
+        print("AWS CLI not installed")
+        os.system("tput setaf 7")
+        exit()
+    else:
+        temp = sp.check_output("aws configure list-profiles", shell=True)
+        if temp == b'':
+            os.system("tput setaf 1")
+            print("AWS CLI not configured")
+            os.system("tput setaf 7")
+            exit()
+        else:
+            temp = temp.decode("utf-8")
+            temp = list(temp.split())
+            while True:
+                x = 0
+                os.system("tput setaf 6")
+                print("Select Your AWS profile\n")
+                for i in temp:
+                    print(" {0} | {1}".format(x,i))
+                    x+=1
+                print("-1 | Exit")
+                os.system("tput setaf 7")
+                os.system("tput setaf 3")
+                profile = int(input("Enter the profile number: "))
+                os.system("tput setaf 7")
+                if profile!='' and profile < len(temp) and profile >= 0:
+                    profile = temp[profile]
+                    break
+                else: 
+                    if profile == -1:
+                        exit()
+                    else:
+                        os.system("tput setaf 1")
+                        print("Invalid profile number")
+                        os.system("tput setaf 7")
+                        input("\n------Please try again-------")    
+                        os.system("clear")
+    
     os.system("clear")
     os.system("tput setaf 3")
-    default = "default"
-    profile = input("Enter profile name: ") or default
     os.system("tput setaf 7") 
     
     if profile !='':
@@ -256,11 +297,14 @@ if __name__ == "__main__":
         os.system("tput setaf 3")
         print("\n!! Error !! -->Please contact the Developer\n")
         os.system("tput setaf 7")
-        
+        input("\n--- Exit Code by pressing Enter---")
+        os.system("clear")
     
 else: 
     os.system("clear")
     os.system("tput setaf 1")
     print("\n!! Error !! -->Please provide profile name\n")
     os.system("tput setaf 7")
+    input("\n--- Exit Code by pressing Enter---")
+    os.system("clear")
 
