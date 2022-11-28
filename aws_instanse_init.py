@@ -4,6 +4,7 @@ import time
 import os
 import subprocess as sp
 
+inst_num = 0
 def list_all_instances():
     try:
         region_meta_data = client.meta.client.describe_regions()['Regions']
@@ -68,14 +69,14 @@ def start_instances(client, inst_id):
 def stop_instances(client, inst_id):
     try: 
         response1 = client.meta.client.stop_instances(InstanceIds = inst_id)
-        if response1['StoppingInstances'][0]['CurrentState']['Name'] == 'stopping':
+        while client.meta.client.stop_instances(InstanceIds = inst_id)['StoppingInstances'][0]['CurrentState']['Name'] == 'stopping':
             os.system("tput setaf 5")
             print("\nWaiting for instance to stop...\n")
             os.system("tput setaf 7")    
-        instance_runner_waiter = client.meta.client.get_waiter('instance_stopped')
-        instance_runner_waiter.wait(InstanceIds=inst_id)    
-        response2 = client.meta.client.describe_instances(InstanceIds = inst_id)
-        return response2['Reservations'][0]['Instances'][0]['State']['Name']
+            instance_runner_waiter = client.meta.client.get_waiter('instance_stopped')
+            instance_runner_waiter.wait(InstanceIds=inst_id)    
+            response2 = client.meta.client.describe_instances(InstanceIds = inst_id)
+            return response2['Reservations'][0]['Instances'][0]['State']['Name']
     except:
         os.system("tput setaf 1")
         print("\n!! Error in stopping instance !! \n")
@@ -88,7 +89,6 @@ if __name__ == "__main__":
     if return_code != 0:
         os.system("tput setaf 1")
         print("AWS CLI not installed")
-        os.system("tput setaf 7")
         os.system("tput setaf 3")
         print("\n----Install AWS CLI----\n")
         os.system("tput setaf 7")
@@ -118,7 +118,6 @@ if __name__ == "__main__":
                     print(" {0} | {1}".format(x,i))
                     x+=1
                 print("-1 | Exit")
-                os.system("tput setaf 7")
                 os.system("tput setaf 3")
                 profile = int(input("Enter the profile number: "))
                 os.system("tput setaf 7")
@@ -142,10 +141,9 @@ if __name__ == "__main__":
         while True:
             x=1
             try: 
+                os.system("tput setaf 6")
                 for i in region_list:
-                    os.system("tput setaf 6")
                     print("{0} {1}".format(x, i))
-                    os.system("tput setaf 7")
                     x+=1
                 os.system("tput setaf 3")
                 temp = input("Enter region number: ")
@@ -160,7 +158,6 @@ if __name__ == "__main__":
             except: 
                 os.system("tput setaf 1")
                 print("\n!! Error !! -->Invalid region number.\n")
-                os.system("tput setaf 7")
                 os.systam("tput setaf 5")
                 input("----- Please try again -----")
                 os.system("tput setaf 7")
@@ -215,7 +212,6 @@ if __name__ == "__main__":
                         x += 1
                     os.system("tput setaf 6")
                     print("-1 | Return to main menu")
-                    os.system("tput setaf 7")
                     os.system("tput setaf 3")
                     inst_num = input("\nEnter the instance number to start: ")
                     os.system("tput setaf 7")
@@ -224,7 +220,7 @@ if __name__ == "__main__":
                         public_ip_address = start_instances(client, inst_id)
                         break
                     else: 
-                        if int(inst_num)<0:
+                        if inst_num != '' and int(inst_num)<0:
                             break
                         else: 
                             os.system("tput setaf 1")
@@ -270,7 +266,6 @@ if __name__ == "__main__":
                         x += 1
                     os.system("tput setaf 6")
                     print("-1 | Return to main menu")
-                    os.system("tput setaf 7")
                     os.system("tput setaf 3")
                     inst_num = input("Enter the instance number to stop: ")
                     os.system("tput setaf 7")
@@ -281,7 +276,7 @@ if __name__ == "__main__":
                         print("Instance stopped Successfully")
                         os.system("tput setaf 7")   
                     else: 
-                        if int(inst_num)<0:
+                        if inst_num != '' and int(inst_num)<0:
                             break
                         else: 
                             os.system("tput setaf 1")
@@ -307,10 +302,9 @@ if __name__ == "__main__":
         os.system("clear")
     
 else: 
-    os.system("clear")
     os.system("tput setaf 1")
     print("\n!! Error !! -->Please provide profile name\n")
-    os.system("tput setaf 7")
     input("\n--- Exit Code by pressing Enter---")
+    os.system("tput setaf 7")
     os.system("clear")
 
