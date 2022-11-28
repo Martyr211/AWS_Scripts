@@ -69,14 +69,17 @@ def start_instances(client, inst_id):
 def stop_instances(client, inst_id):
     try: 
         response1 = client.meta.client.stop_instances(InstanceIds = inst_id)
-        while client.meta.client.stop_instances(InstanceIds = inst_id)['StoppingInstances'][0]['CurrentState']['Name'] == 'stopping':
+        if response1['StoppingInstances'][0]['CurrentState']['Name'] == 'stopping':
             os.system("tput setaf 5")
             print("\nWaiting for instance to stop...\n")
             os.system("tput setaf 7")    
-            instance_runner_waiter = client.meta.client.get_waiter('instance_stopped')
-            instance_runner_waiter.wait(InstanceIds=inst_id)    
-            response2 = client.meta.client.describe_instances(InstanceIds = inst_id)
-            return response2['Reservations'][0]['Instances'][0]['State']['Name']
+        instance_runner_waiter = client.meta.client.get_waiter('instance_stopped')
+        instance_runner_waiter.wait(InstanceIds=inst_id)    
+        response2 = client.meta.client.describe_instances(InstanceIds = inst_id)
+        os.system("tput setaf 2")
+        print("\nInstance stopped successfully\n")
+        os.system("tput setaf 7")
+        return response2['Reservations'][0]['Instances'][0]['State']['Name']
     except:
         os.system("tput setaf 1")
         print("\n!! Error in stopping instance !! \n")
@@ -169,8 +172,8 @@ if __name__ == "__main__":
             
     #Script
     try:
-        data = list_instances(client)
         while True:
+            data = list_instances(client)
             os.system("clear")
             os.system("tput setaf 6")
             print("Type 1: List Instances with status")
@@ -201,6 +204,7 @@ if __name__ == "__main__":
             if temp == '2':
                 os.system("clear")
                 while True:
+                    data = list_instances(client)
                     x=0
                     os.system("tput setaf 6")
                     print("\nList of instances launched in region: ".format(region))
@@ -255,6 +259,7 @@ if __name__ == "__main__":
             if temp == '3':
                 os.system("clear")
                 while True:
+                    data = list_instances(client)
                     os.system("tput setaf 6")
                     print("List of instances launched in region: ".format(region))
                     os.system("tput setaf 7")
@@ -272,9 +277,6 @@ if __name__ == "__main__":
                     if inst_num != '' and int(inst_num) < len(data) and int(inst_num) >= 0:
                         inst_id = [data[int(inst_num)]['Id']]
                         stop_instances(client, inst_id)
-                        os.system("tput setaf 2")
-                        print("Instance stopped Successfully")
-                        os.system("tput setaf 7")   
                     else: 
                         if inst_num != '' and int(inst_num)<0:
                             break
