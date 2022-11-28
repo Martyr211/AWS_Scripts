@@ -89,13 +89,23 @@ if __name__ == "__main__":
         os.system("tput setaf 1")
         print("AWS CLI not installed")
         os.system("tput setaf 7")
-        exit()
+        os.system("tput setaf 3")
+        print("\n----Install AWS CLI----\n")
+        os.system("tput setaf 7")
+        if sp.getstatusoutput("msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi")[0] == 0:
+            os.system("tput setaf 2")
+            print("AWS CLI installed successfully")
+            os.system("tput setaf 7")
+            return_code = sp.getstatusoutput('aws --version')[0]
+            if return_code != 0:
+                exit()
     else:
         temp = sp.check_output("aws configure list-profiles", shell=True)
         if temp == b'':
             os.system("tput setaf 1")
             print("AWS CLI not configured")
             os.system("tput setaf 7")
+            print("----Please use '#aws configure --profile=##name##' to configure AWS CLI----")
             exit()
         else:
             temp = temp.decode("utf-8")
@@ -124,11 +134,7 @@ if __name__ == "__main__":
                         os.system("tput setaf 7")
                         input("\n------Please try again-------")    
                         os.system("clear")
-    
-    os.system("clear")
-    os.system("tput setaf 3")
-    os.system("tput setaf 7") 
-    
+        
     if profile !='':
         session = boto3.Session(profile_name=profile)
         client = session.resource('ec2')
