@@ -103,40 +103,60 @@ if __name__ == "__main__":
             if return_code != 0:
                 exit()
     else:
-        temp = sp.check_output("aws configure list-profiles", shell=True)
-        if temp == b'':
-            os.system("tput setaf 1")
-            print("AWS CLI not configured")
-            os.system("tput setaf 7")
-            print("----Please use '#aws configure --profile=##name##' to configure AWS CLI----")
-            exit()
-        else:
-            temp = temp.decode("utf-8")
-            temp = list(temp.split())
-            while True:
-                x = 0
-                os.system("tput setaf 6")
-                print("Select Your AWS profile\n")
-                for i in temp:
-                    print(" {0} | {1}".format(x,i))
-                    x+=1
-                print("-1 | Exit")
-                os.system("tput setaf 3")
-                profile = int(input("Enter the profile number: "))
+        while True:
+            os.system("clear")
+            temp = sp.check_output("aws configure list-profiles", shell=True)
+            if temp == b'':
+                os.system("tput setaf 1")
+                print("!! Error !! --> AWS CLI not configured\n")
                 os.system("tput setaf 7")
-                if profile!='' and profile < len(temp) and profile >= 0:
-                    profile = temp[profile]
+                print("Type 0 | To configure AWS CLI: ")
+                print("Type 1 | To exit: ")
+                os.system("tput setaf 3")
+                temp = int(input("> "))
+                os.system("tput setaf 7")
+                if temp == 0:
+                    os.system("tput setaf 3")
+                    profile_name = input("Enter any profile name: ")
+                    os.system("tput setaf 7")
+                    os.system("aws configure --profile {}".format(profile_name)) 
+                if temp == 1:
+                    exit()
+                if temp != 0 and temp != 1:
+                    os.system("tput setaf 1")
+                    print("\n!! Error !! --> Invalid input")
+                    os.system("tput setaf 7")
+                    input("\nPress Enter to continue...")
+            else:   
+                temp = temp.decode("utf-8")
+                temp = list(temp.split())
+                while True:
+                    x = 0
+                    os.system("tput setaf 6")
+                    print("Select Your AWS profile\n")
+                    for i in temp:
+                        print(" {0} | {1}".format(x,i))
+                        x+=1
+                    print("-1 | Exit")
+                    os.system("tput setaf 3")
+                    profile = int(input("Enter the profile number: "))
+                    os.system("tput setaf 7")
+                    if profile!='' and profile < len(temp) and profile >= 0:
+                        profile = temp[profile]
+                        break
+                    else: 
+                        if profile == -1:
+                            exit()
+                        else:
+                            os.system("tput setaf 1")
+                            print("Invalid profile number")
+                            os.system("tput setaf 7")
+                            input("\n------Please try again-------")    
+                            os.system("clear")
+                if profile != '':
+                    os.system("clear")
                     break
-                else: 
-                    if profile == -1:
-                        exit()
-                    else:
-                        os.system("tput setaf 1")
-                        print("Invalid profile number")
-                        os.system("tput setaf 7")
-                        input("\n------Please try again-------")    
-                        os.system("clear")
-        
+                
     if profile !='':
         session = boto3.Session(profile_name=profile)
         client = session.resource('ec2')
@@ -247,14 +267,8 @@ if __name__ == "__main__":
                             os.system("tput setaf 7")
                         if public_ip_address != None and public_ip_address != "" and return_code==0 :
                             os.system("ssh -i {0} ec2-user@{1}".format(key_name, public_ip_address))
-                        else: 
-                            os.system("tput setaf 1")
-                            print("\n!! Error !! --> wrong option given\n")
-                            os.system("tput setaf 7")
-                   
-                os.system("tput setaf 3")
-                input("\n--- Return to main menu by pressing Enter---")
-                os.system("tput setaf 7")
+                            print("\n----- Return to main menu -----\n")
+                            input("> ")
                 
             if temp == '3':
                 os.system("clear")
@@ -277,6 +291,8 @@ if __name__ == "__main__":
                     if inst_num != '' and int(inst_num) < len(data) and int(inst_num) >= 0:
                         inst_id = [data[int(inst_num)]['Id']]
                         stop_instances(client, inst_id)
+                        print("\n----- Return to main menu -----\n")
+                        os.system("clear")
                     else: 
                         if inst_num != '' and int(inst_num)<0:
                             break
@@ -286,9 +302,6 @@ if __name__ == "__main__":
                             os.system("tput setaf 7")
                             input("----- Please try again -----")
                             os.system("clear")
-                            
-                os.system("tput setaf 3")
-                input("\n--- Return to main menu by pressing Enter---")
                 os.system("tput setaf 7")
             
             if temp == '4':
