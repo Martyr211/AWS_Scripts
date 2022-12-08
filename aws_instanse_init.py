@@ -60,6 +60,7 @@ def start_instances(client, inst_id):
         print("\nInstance started successfully\n")
         os.system("tput setaf 7")
         public_ip_address = response2['Reservations'][0]['Instances'][0]['PublicIpAddress']
+        print(public_ip_address)
         return public_ip_address
     except:
         os.system("tput setaf 1")
