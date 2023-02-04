@@ -257,19 +257,47 @@ if __name__ == "__main__":
                     os.system("tput setaf 4")
                     ans = input("\nDo you want to connect to the instance? (y/n): ")
                     os.system("tput setaf 7")
-                    if ans == 'y':
-                        os.system("tput setaf 3")
-                        key_name = input("\n Enter complete path to ssh key: ")
-                        os.system("tput setaf 7")
-                        return_code = sp.getstatusoutput('ls {0}'.format(key_name))[0]
-                        if return_code != 0:
-                            os.system("tput setaf 1")
-                            print("\n!! Error !! --> Please give correct path to ssh key file.\n")
+                    for i in range(0,10):
+                        if ans == 'y':
+                            os.system("tput setaf 3")
+                            ans = input("\nDo you want to choose ssh key from current directory? (y/n): ")
                             os.system("tput setaf 7")
-                        if public_ip_address != None and public_ip_address != "" and return_code==0 :
-                            os.system("ssh -i {0} ec2-user@{1}".format(key_name, public_ip_address))
-                            print("\n----- Return to main menu -----\n")
-                            input("> ")
+                            if ans == 'y':
+                                os.system("tput setaf 6")
+                                result = sp.run("ls -1 *.pem", stdout=sp.PIPE, shell=True, encoding='utf-8')
+                                key_list = [item for item in result.stdout.split('\n') if item] #output is in string format therefore spliting the output via '\n' & remove the blank item from list
+                                status = result.returncode
+                                if status == 0:
+                                    x=0
+                                    print("List of private keys you have in current directory: ") 
+                                    for i in key_list: 
+                                        print('{0} | {1}'.format(x, i))
+                                        x+=1
+                                    os.system("tput setaf 3")
+                                    key = int(input("Enter key number: "))
+                                    os.system("tput setaf 7")
+                                    if key != '' and int(key) < len(key_list) and int(key) >= 0:
+                                        key_name = key_list[int(key)] 
+                                    else:
+                                        os.system("tput setaf 1")
+                                        print("\n !! Error !! --> please enter valid key number.\n")
+                                        os.system("tput setaf 7")
+                                        continue
+                            else:
+                                os.system("tput setaf 3")
+                                key_name = input("\nEnter complete path to ssh key: ")
+                                os.system("tput setaf 7")   
+                                return_code = sp.getstatusoutput('ls {0}'.format(key_name))[0]
+                                if return_code != 0:
+                                    os.system("tput setaf 1")
+                                    print("\n!! Error !! --> Please give correct path to ssh key file in quotes ''\n")
+                                    os.system("tput setaf 7")
+                                    continue
+                            if key>0 or return_code==0 :
+                                if public_ip_address != None and public_ip_address != "":
+                                    os.system("ssh -i {0} ec2-user@{1}".format(key_name, public_ip_address))
+                    print("\n----- Return to main menu -----\n")
+                    input("> ")
                 
             if temp == '3':
                 os.system("clear")
